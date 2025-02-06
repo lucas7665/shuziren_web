@@ -54,6 +54,7 @@ function SimpleDemo() {
   const interativeRef = useRef<any>()
   const [initialized, setInitialized] = useState(false)
   const [inputText, setInputText] = useState('')
+  const [answer, setAnswer] = useState('')
 
   // 初始化SDK
   const initSDK = () => {
@@ -88,6 +89,13 @@ function SimpleDemo() {
       })
       .on('error', (error: any) => console.log('错误:', error))
       .on('subtitle_info', (data: any) => console.log('字幕:', data?.text))
+      .on('nlp', (nlpData: any) => {
+        console.log('资料库响应:', nlpData)
+        if (nlpData?.text) {
+          setLoading(false)
+          setAnswer(nlpData.text)
+        }
+      })
 
     message.success('事件监听已绑定')
     return true
@@ -170,6 +178,41 @@ function SimpleDemo() {
     }
   }
 
+  // 添加资料库问答函数
+  const handleQuestion = async () => {
+    if (!inputText.trim()) {
+      message.warning('请输入问题')
+      return
+    }
+
+    if (!interativeRef.current) {
+      message.warning('请先初始化数字人')
+      return
+    }
+
+    setAnswer('')
+    setLoading(true)
+
+    try {
+      await interativeRef.current.writeText(inputText, {
+        nlp: true,
+        parameter: {
+          nlp: {
+            domain: 'avatar',
+            type: 'faq'
+          },
+          tdp: {
+            url: CONFIG.apiInfo.serverUrl  // 使用同样的服务地址
+          }
+        }
+      })
+    } catch (error) {
+      console.error(error)
+      message.error('提问失败')
+      setLoading(false)
+    }
+  }
+
   // 组件卸载时清理
   useEffect(() => {
     return cleanup
@@ -188,30 +231,55 @@ function SimpleDemo() {
         <div style={{ 
           padding: '20px',
           display: 'flex',
+          flexDirection: 'column',
           gap: '10px',
           maxWidth: '800px',
           margin: '0 auto'
         }}>
-          <Input.TextArea
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="请输入要说的话..."
-            style={{ flex: 1 }}
-            rows={3}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && e.ctrlKey) {
-                handleSubmit()
-              }
-            }}
-          />
-          <Button 
-            type="primary"
-            onClick={handleSubmit}
-            disabled={!initialized}
-            style={{ height: 'auto', width: '100px' }}
-          >
-            发送
-          </Button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Input.TextArea
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="请输入问题或要说的话..."
+              style={{ flex: 1 }}
+              rows={3}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                  handleSubmit()
+                }
+              }}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <Button 
+                type="primary"
+                onClick={handleSubmit}
+                disabled={!initialized}
+                style={{ height: '50%', width: '100px' }}
+              >
+                发送
+              </Button>
+              <Button 
+                onClick={handleQuestion}
+                disabled={!initialized}
+                style={{ height: '50%', width: '100px' }}
+              >
+                提问
+              </Button>
+            </div>
+          </div>
+
+          {/* 答案显示区域 */}
+          {answer && (
+            <div style={{
+              padding: '10px',
+              backgroundColor: '#f5f5f5',
+              borderRadius: '4px',
+              marginTop: '10px'
+            }}>
+              <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>资料库回答：</div>
+              <div>{answer}</div>
+            </div>
+          )}
         </div>
         
         {/* 控制按钮 */}
