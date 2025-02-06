@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, message, Spin } from 'antd'
+import { Button, message, Spin, Input } from 'antd'
 import AvatarPlatform from '../testSdk/3.1.2.1002/avatar-sdk-web_3.1.2.1002/index.js'
 
 const CONFIG = {
@@ -53,6 +53,7 @@ function SimpleDemo() {
   const [loading, setLoading] = useState(false)
   const interativeRef = useRef<any>()
   const [initialized, setInitialized] = useState(false)
+  const [inputText, setInputText] = useState('')
 
   // 初始化SDK
   const initSDK = () => {
@@ -146,6 +147,29 @@ function SimpleDemo() {
     }
   }
 
+  // 添加提交文字的函数
+  const handleSubmit = async () => {
+    if (!inputText.trim()) {
+      message.warning('请输入要说的话')
+      return
+    }
+
+    if (!interativeRef.current) {
+      message.warning('请先初始化数字人')
+      return
+    }
+
+    try {
+      await interativeRef.current.writeText(inputText, {
+        tts: { vcn: 'x4_yezi' }
+      })
+      setInputText('') // 清空输入框
+    } catch (error) {
+      console.error(error)
+      message.error('语音播报失败')
+    }
+  }
+
   // 组件卸载时清理
   useEffect(() => {
     return cleanup
@@ -156,11 +180,47 @@ function SimpleDemo() {
       <div style={{ padding: '20px' }}>
         <div className="avatar-container" style={{ 
           width: '100%',
-          height: '80vh',
+          height: '70vh',
           backgroundColor: '#eee'
         }}></div>
         
-        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+        {/* 添加输入框和提交按钮 */}
+        <div style={{ 
+          padding: '20px',
+          display: 'flex',
+          gap: '10px',
+          maxWidth: '800px',
+          margin: '0 auto'
+        }}>
+          <Input.TextArea
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder="请输入要说的话..."
+            style={{ flex: 1 }}
+            rows={3}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.ctrlKey) {
+                handleSubmit()
+              }
+            }}
+          />
+          <Button 
+            type="primary"
+            onClick={handleSubmit}
+            disabled={!initialized}
+            style={{ height: 'auto', width: '100px' }}
+          >
+            发送
+          </Button>
+        </div>
+        
+        {/* 控制按钮 */}
+        <div style={{ 
+          marginTop: '20px', 
+          display: 'flex', 
+          gap: '10px',
+          justifyContent: 'center'
+        }}>
           <Button type="primary" onClick={autoInit} disabled={initialized}>
             一键初始化
           </Button>
