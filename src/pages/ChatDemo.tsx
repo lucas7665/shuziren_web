@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, message, Spin, Input, Card, Slider } from 'antd'
+import { Button, message, Spin, Input, Card, Slider, Switch } from 'antd'
 import AvatarPlatform from '../testSdk/3.1.2.1002/avatar-sdk-web_3.1.2.1002/index.js'
 
 // 配置信息
@@ -69,7 +69,8 @@ function ChatDemo() {
     wikiFilterScore: 0.82,
     temperature: 0.5,
     spark: true,
-    topN: 3
+    topN: 3,
+    wikiPromptTpl: "基于以下内容回答问题：\n<wikicontent>\n\n问题：<wikiquestion>\n回答："
   })
 
   // 初始化SDK
@@ -176,7 +177,7 @@ function ChatDemo() {
           topN: settings.topN,
           messages: messages,
           chatExtends: {
-            wikiPromptTpl: "基于以下内容回答问题：\n<wikicontent>\n\n问题：<wikiquestion>\n回答：",
+            wikiPromptTpl: settings.wikiPromptTpl,
             wikiFilterScore: settings.wikiFilterScore,
             spark: settings.spark,
             temperature: settings.temperature
@@ -364,13 +365,35 @@ function ChatDemo() {
                 onChange={(value) => setSettings(s => ({...s, topN: value}))}
               />
             </div>
+            <div style={{ marginBottom: '20px' }}>
+              <div>提示模板：</div>
+              <Input.TextArea
+                value={settings.wikiPromptTpl}
+                onChange={(e) => setSettings(s => ({...s, wikiPromptTpl: e.target.value}))}
+                placeholder="输入提示模板..."
+                rows={4}
+                style={{ marginTop: '8px' }}
+              />
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>大模型兜底：</span>
+                <Switch
+                  checked={settings.spark}
+                  onChange={(checked) => setSettings(s => ({...s, spark: checked}))}
+                  checkedChildren="开启"
+                  unCheckedChildren="关闭"
+                />
+              </div>
+            </div>
             <Button
               type="primary"
               onClick={() => setSettings({
                 wikiFilterScore: 0.82,
                 temperature: 0.5,
                 spark: true,
-                topN: 3
+                topN: 3,
+                wikiPromptTpl: "基于以下内容回答问题：\n<wikicontent>\n\n问题：<wikiquestion>\n回答："
               })}
               block
             >
