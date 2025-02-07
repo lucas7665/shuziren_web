@@ -91,9 +91,14 @@ function SimpleDemo() {
       .on('subtitle_info', (data: any) => console.log('字幕:', data?.text))
       .on('nlp', (nlpData: any) => {
         console.log('资料库响应:', nlpData)
+        setLoading(false)
         if (nlpData?.text) {
-          setLoading(false)
-          setAnswer(nlpData.text)
+          setAnswer(
+            `问题: ${nlpData.text}\n` +
+            `答案: ${nlpData.answer?.text || '无答案'}\n` +
+            `来源: ${nlpData.extend_params?.repoName || '未知'}\n` +
+            `匹配问题: ${nlpData.extend_params?.topic || '未知'}`
+          )
         }
       })
 
@@ -178,7 +183,7 @@ function SimpleDemo() {
     }
   }
 
-  // 添加资料库问答函数
+  // 修改资料库问答函数
   const handleQuestion = async () => {
     if (!inputText.trim()) {
       message.warning('请输入问题')
@@ -201,8 +206,23 @@ function SimpleDemo() {
             domain: 'avatar',
             type: 'faq'
           },
+          header: {
+            app_id: CONFIG.apiInfo.appId,
+            ctrl: 'text_interact',
+            orgCode: CONFIG.apiInfo.appId
+          },
+          payload: {
+            text: {
+              content: inputText
+            }
+          },
           tdp: {
-            url: CONFIG.apiInfo.serverUrl  // 使用同样的服务地址
+            url: 'wss://avatar.cn-huadong-1.xf-yun.com/v1/interact',
+            orgCode: CONFIG.apiInfo.appId,
+            appId: CONFIG.apiInfo.appId,
+            apiKey: CONFIG.apiInfo.apiKey,
+            apiSecret: CONFIG.apiInfo.apiSecret,
+            botId: '145706888397459456'
           }
         }
       })
@@ -271,12 +291,13 @@ function SimpleDemo() {
           {/* 答案显示区域 */}
           {answer && (
             <div style={{
-              padding: '10px',
+              padding: '15px',
               backgroundColor: '#f5f5f5',
               borderRadius: '4px',
-              marginTop: '10px'
+              marginTop: '10px',
+              whiteSpace: 'pre-line'
             }}>
-              <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>资料库回答：</div>
+              <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>资料库回答：</div>
               <div>{answer}</div>
             </div>
           )}
