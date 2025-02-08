@@ -1,57 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button, message, Spin, Input, Card, Slider, Switch } from 'antd'
 import AvatarPlatform from '../testSdk/3.1.2.1002/avatar-sdk-web_3.1.2.1002/index.js'
-
-// 配置信息
-const CONFIG = {
-  // API配置
-  apiInfo: {
-    serverUrl: 'wss://avatar.cn-huadong-1.xf-yun.com/v1/interact',
-    appId: '6b88e4b3',
-    apiKey: 'b991a607467166f9c2ee48ea7b29105b',
-    apiSecret: 'NjMxNzU1NTU1MDA2NWMzY2MzNzU4YmRi',
-    sceneId: '145706888397459456',
-  },
-  
-  // 全局参数配置
-  globalParams: {
-    avatar_dispatch: { interactive_mode: 0, content_analysis: 0 },
-    stream: {
-      protocol: 'xrtc',
-      alpha: 0,
-      bitrate: 1000000,
-      fps: 25,
-    },
-    avatar: {
-      avatar_id: '110005011',
-      width: 720,
-      height: 1280,
-      mask_region: '[0, 0, 1080, 1920]',
-      scale: 1,
-      move_h: 0,
-      move_v: 0,
-      rotate: 0,
-      flip: 0,
-      mirror: 0,
-      background: {
-        type: 'color',
-        value: '#00ff00'
-      }
-    },
-    // 添加缺失的必要配置
-    tts: {
-      vcn: 'x4_yezi',
-      speed: 50,
-      pitch: 50,
-      volume: 50
-    },
-    audio: {
-      channels: 1,
-      sampleRate: 16000,
-      sampleBits: 16
-    }
-  }
-}
+import { AVATAR_CONFIG, CHAT_CONFIG } from '../config/chatConfig'
 
 // 消息类型定义
 interface Message {
@@ -109,13 +59,7 @@ function ChatDemo() {
   const [initialized, setInitialized] = useState(false)
   const [inputText, setInputText] = useState('')
   const [messages, setMessages] = useState<Message[]>([])
-  const [settings, setSettings] = useState({
-    wikiFilterScore: 0.82,
-    temperature: 0.5,
-    spark: true,
-    topN: 3,
-    wikiPromptTpl: "基于以下内容回答问题：\n<wikicontent>\n\n问题：<wikiquestion>\n回答："
-  })
+  const [settings] = useState(CHAT_CONFIG.defaultSettings)
 
   // 初始化SDK
   const initSDK = () => {
@@ -174,22 +118,22 @@ function ChatDemo() {
       
       // 3. 设置API信息
       await interativeRef.current.setApiInfo({
-        ...CONFIG.apiInfo,
+        ...AVATAR_CONFIG.apiInfo,
         request_id: Date.now().toString()
       })
       
       // 4. 设置全局参数
-      await interativeRef.current.setGlobalParams(CONFIG.globalParams)
+      await interativeRef.current.setGlobalParams(AVATAR_CONFIG.globalParams)
       
       // 5. 启动
       await interativeRef.current.start({
         wrapper: document.querySelector('.avatar-container'),
-        width: CONFIG.globalParams.avatar.width,
-        height: CONFIG.globalParams.avatar.height,
+        width: AVATAR_CONFIG.globalParams.avatar.width,
+        height: AVATAR_CONFIG.globalParams.avatar.height,
         // 添加缺失的必要参数
         useInlinePlayer: true,
         binaryData: false,
-        protocol: CONFIG.globalParams.stream.protocol
+        protocol: AVATAR_CONFIG.globalParams.stream.protocol
       })
       
       setInitialized(true)
@@ -216,7 +160,7 @@ function ChatDemo() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          repoId: 'fc93572d49414586b65c25338ab02283',
+          repoId: CHAT_CONFIG.repoId,
           question: inputText,
           topN: settings.topN,
           messages: messages,
@@ -408,74 +352,6 @@ function ChatDemo() {
                 </Button>
               </div>
             </div>
-
-            {/* 右侧参数设置 - Card 组件默认就是白色背景 */}
-            <Card title="参数设置" style={{ width: 300 }}>
-              <div style={{ marginBottom: '20px' }}>
-                <div>匹配精度：{settings.wikiFilterScore}</div>
-                <Slider
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={settings.wikiFilterScore}
-                  onChange={(value) => setSettings(s => ({...s, wikiFilterScore: value}))}
-                />
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <div>随机程度：{settings.temperature}</div>
-                <Slider
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  value={settings.temperature}
-                  onChange={(value) => setSettings(s => ({...s, temperature: value}))}
-                />
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <div>匹配数量：{settings.topN}</div>
-                <Slider
-                  min={1}
-                  max={10}
-                  step={1}
-                  value={settings.topN}
-                  onChange={(value) => setSettings(s => ({...s, topN: value}))}
-                />
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <div>提示模板：</div>
-                <Input.TextArea
-                  value={settings.wikiPromptTpl}
-                  onChange={(e) => setSettings(s => ({...s, wikiPromptTpl: e.target.value}))}
-                  placeholder="输入提示模板..."
-                  rows={4}
-                  style={{ marginTop: '8px' }}
-                />
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>大模型兜底：</span>
-                  <Switch
-                    checked={settings.spark}
-                    onChange={(checked) => setSettings(s => ({...s, spark: checked}))}
-                    checkedChildren="开启"
-                    unCheckedChildren="关闭"
-                  />
-                </div>
-              </div>
-              <Button
-                type="primary"
-                onClick={() => setSettings({
-                  wikiFilterScore: 0.82,
-                  temperature: 0.5,
-                  spark: true,
-                  topN: 3,
-                  wikiPromptTpl: "基于以下内容回答问题：\n<wikicontent>\n\n问题：<wikiquestion>\n回答："
-                })}
-                block
-              >
-                重置参数
-              </Button>
-            </Card>
           </div>
 
           {/* 控制按钮 */}
