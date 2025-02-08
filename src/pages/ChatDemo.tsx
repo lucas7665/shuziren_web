@@ -230,194 +230,200 @@ function ChatDemo() {
   }, [])
 
   return (
-    <Spin spinning={loading}>
-      <div style={{ 
-        padding: '20px',
-        maxWidth: '1200px',  // 添加最大宽度限制
-        margin: '0 auto'     // 居中显示
-      }}>
-        {/* 数字人容器 */}
-        <div className="avatar-container" style={{ 
-          width: '100%',
-          height: '60vh',    // 增加高度比例
-          backgroundColor: '#f5f5f5',  // 更改背景色
-          marginBottom: '20px',
-          borderRadius: '8px',  // 添加圆角
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'  // 添加阴影
-        }}></div>
-        
-        {/* 对话区域 */}
+    <div style={{ 
+      minHeight: '100vh',  // 确保至少占满整个视口高度
+      backgroundColor: '#f5f5f5',  // 整个页面的灰色背景
+      padding: '20px'
+    }}>
+      <Spin spinning={loading}>
         <div style={{ 
-          display: 'flex',
-          gap: '20px'
+          maxWidth: '1200px',
+          margin: '0 auto',
+          backgroundColor: '#ffffff',
+          padding: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}>
-          {/* 左侧对话历史 */}
-          <div style={{ flex: 1 }}>
-            <Card 
-              title="对话历史" 
-              style={{ marginBottom: '20px' }}
-              styles={{
-                body: { 
-                  padding: '20px',
-                  height: '400px',
-                  overflowY: 'auto',
-                  backgroundColor: '#f5f5f5'
-                }
-              }}
-            >
-              <div style={{ 
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '15px'
-              }}>
-                {messages.map((msg, index) => (
-                  <div key={index} style={{
-                    display: 'flex',
-                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    marginBottom: '10px'
-                  }}>
-                    <div style={{
-                      maxWidth: '70%',
-                      padding: '12px 16px',
-                      backgroundColor: msg.role === 'user' ? '#95ec69' : '#ffffff',
-                      borderRadius: '8px',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                      position: 'relative',
-                      wordBreak: 'break-word',
-                      lineHeight: '1.5',
-                      textAlign: 'left'
-                    }}>
-                      {msg.content}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* 输入区域 */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '10px',
-              backgroundColor: '#fff',
-              padding: '15px',
-              borderRadius: '8px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}>
-              <Input.TextArea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="请输入问题..."
-                style={{ 
-                  flex: 1,
-                  borderRadius: '4px',
-                  resize: 'none'
-                }}
-                rows={3}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.ctrlKey) {
-                    handleQuestion()
+          {/* 数字人容器 */}
+          <div className="avatar-container" style={{ 
+            width: '100%',
+            height: '60vh',
+            backgroundColor: '#ffffff',  // 改为白色背景
+            marginBottom: '20px',
+            borderRadius: '8px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+          }}></div>
+          
+          {/* 对话区域 */}
+          <div style={{ display: 'flex', gap: '20px' }}>
+            {/* 左侧对话历史 */}
+            <div style={{ flex: 1 }}>
+              <Card 
+                title="对话历史" 
+                style={{ marginBottom: '20px' }}
+                styles={{
+                  body: { 
+                    padding: '20px',
+                    height: '400px',
+                    overflowY: 'auto',
+                    backgroundColor: '#ffffff'  // 改为白色背景
                   }
                 }}
-              />
-              <Button 
-                type="primary"
-                onClick={handleQuestion}
-                style={{ 
-                  height: '82px', 
-                  width: '100px',
-                  borderRadius: '4px'
-                }}
               >
-                发送
-              </Button>
-            </div>
-          </div>
+                <div style={{ 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '15px'
+                }}>
+                  {messages.map((msg, index) => (
+                    <div key={index} style={{
+                      display: 'flex',
+                      justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                      marginBottom: '10px'
+                    }}>
+                      <div style={{
+                        maxWidth: '70%',
+                        padding: '12px 16px',
+                        backgroundColor: msg.role === 'user' ? '#95ec69' : '#ffffff',
+                        borderRadius: '8px',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                        position: 'relative',
+                        wordBreak: 'break-word',
+                        lineHeight: '1.5',
+                        textAlign: 'left'
+                      }}>
+                        {msg.content}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
 
-          {/* 右侧参数设置 */}
-          <Card title="参数设置" style={{ width: 300 }}>
-            <div style={{ marginBottom: '20px' }}>
-              <div>匹配精度：{settings.wikiFilterScore}</div>
-              <Slider
-                min={0}
-                max={1}
-                step={0.01}
-                value={settings.wikiFilterScore}
-                onChange={(value) => setSettings(s => ({...s, wikiFilterScore: value}))}
-              />
-            </div>
-            <div style={{ marginBottom: '20px' }}>
-              <div>随机程度：{settings.temperature}</div>
-              <Slider
-                min={0}
-                max={1}
-                step={0.1}
-                value={settings.temperature}
-                onChange={(value) => setSettings(s => ({...s, temperature: value}))}
-              />
-            </div>
-            <div style={{ marginBottom: '20px' }}>
-              <div>匹配数量：{settings.topN}</div>
-              <Slider
-                min={1}
-                max={10}
-                step={1}
-                value={settings.topN}
-                onChange={(value) => setSettings(s => ({...s, topN: value}))}
-              />
-            </div>
-            <div style={{ marginBottom: '20px' }}>
-              <div>提示模板：</div>
-              <Input.TextArea
-                value={settings.wikiPromptTpl}
-                onChange={(e) => setSettings(s => ({...s, wikiPromptTpl: e.target.value}))}
-                placeholder="输入提示模板..."
-                rows={4}
-                style={{ marginTop: '8px' }}
-              />
-            </div>
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>大模型兜底：</span>
-                <Switch
-                  checked={settings.spark}
-                  onChange={(checked) => setSettings(s => ({...s, spark: checked}))}
-                  checkedChildren="开启"
-                  unCheckedChildren="关闭"
+              {/* 输入区域 */}
+              <div style={{ 
+                display: 'flex', 
+                gap: '10px',
+                backgroundColor: '#ffffff',  // 已经是白色背景
+                padding: '15px',
+                borderRadius: '8px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+              }}>
+                <Input.TextArea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder="请输入问题..."
+                  style={{ 
+                    flex: 1,
+                    borderRadius: '4px',
+                    resize: 'none'
+                  }}
+                  rows={3}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                      handleQuestion()
+                    }
+                  }}
                 />
+                <Button 
+                  type="primary"
+                  onClick={handleQuestion}
+                  style={{ 
+                    height: '82px', 
+                    width: '100px',
+                    borderRadius: '4px'
+                  }}
+                >
+                  发送
+                </Button>
               </div>
             </div>
-            <Button
-              type="primary"
-              onClick={() => setSettings({
-                wikiFilterScore: 0.82,
-                temperature: 0.5,
-                spark: true,
-                topN: 3,
-                wikiPromptTpl: "基于以下内容回答问题：\n<wikicontent>\n\n问题：<wikiquestion>\n回答："
-              })}
-              block
-            >
-              重置参数
-            </Button>
-          </Card>
-        </div>
 
-        {/* 控制按钮 */}
-        <div style={{ 
-          marginTop: '20px', 
-          display: 'flex', 
-          gap: '10px',
-          justifyContent: 'center'
-        }}>
-          <Button type="primary" onClick={autoInit} disabled={initialized}>
-            初始化数字人
-          </Button>
-          <Button onClick={cleanup} disabled={!initialized}>
-            清理资源
-          </Button>
+            {/* 右侧参数设置 - Card 组件默认就是白色背景 */}
+            <Card title="参数设置" style={{ width: 300 }}>
+              <div style={{ marginBottom: '20px' }}>
+                <div>匹配精度：{settings.wikiFilterScore}</div>
+                <Slider
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={settings.wikiFilterScore}
+                  onChange={(value) => setSettings(s => ({...s, wikiFilterScore: value}))}
+                />
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <div>随机程度：{settings.temperature}</div>
+                <Slider
+                  min={0}
+                  max={1}
+                  step={0.1}
+                  value={settings.temperature}
+                  onChange={(value) => setSettings(s => ({...s, temperature: value}))}
+                />
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <div>匹配数量：{settings.topN}</div>
+                <Slider
+                  min={1}
+                  max={10}
+                  step={1}
+                  value={settings.topN}
+                  onChange={(value) => setSettings(s => ({...s, topN: value}))}
+                />
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <div>提示模板：</div>
+                <Input.TextArea
+                  value={settings.wikiPromptTpl}
+                  onChange={(e) => setSettings(s => ({...s, wikiPromptTpl: e.target.value}))}
+                  placeholder="输入提示模板..."
+                  rows={4}
+                  style={{ marginTop: '8px' }}
+                />
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>大模型兜底：</span>
+                  <Switch
+                    checked={settings.spark}
+                    onChange={(checked) => setSettings(s => ({...s, spark: checked}))}
+                    checkedChildren="开启"
+                    unCheckedChildren="关闭"
+                  />
+                </div>
+              </div>
+              <Button
+                type="primary"
+                onClick={() => setSettings({
+                  wikiFilterScore: 0.82,
+                  temperature: 0.5,
+                  spark: true,
+                  topN: 3,
+                  wikiPromptTpl: "基于以下内容回答问题：\n<wikicontent>\n\n问题：<wikiquestion>\n回答："
+                })}
+                block
+              >
+                重置参数
+              </Button>
+            </Card>
+          </div>
+
+          {/* 控制按钮 */}
+          <div style={{ 
+            marginTop: '20px', 
+            display: 'flex', 
+            gap: '10px',
+            justifyContent: 'center'
+          }}>
+            <Button type="primary" onClick={autoInit} disabled={initialized}>
+              初始化数字人
+            </Button>
+            <Button onClick={cleanup} disabled={!initialized}>
+              清理资源
+            </Button>
+          </div>
         </div>
-      </div>
-    </Spin>
+      </Spin>
+    </div>
   )
 }
 
