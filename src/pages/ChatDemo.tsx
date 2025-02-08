@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Button, message, Spin, Input, Card, Slider, Switch } from 'antd'
+import { Button, message, Spin, Input, Card } from 'antd'
 import AvatarPlatform from '../testSdk/3.1.2.1002/avatar-sdk-web_3.1.2.1002/index.js'
 import { AVATAR_CONFIG, CHAT_CONFIG } from '../config/chatConfig'
 
@@ -23,30 +23,43 @@ const formatAnswer = (text: string) => {
   // 处理文本
   let formattedText = text
   
-  // 高亮关键词
+  // 1. 首先标记加粗标题的位置（使用特殊标记）
+  formattedText = formattedText.replace(
+    /\*\*(.*?)\*\*/g,
+    '___TITLE_START___$1___TITLE_END___'
+  )
+  
+  // 2. 处理其他高亮
+  // 高亮关键词（排除标题标记之间的内容）
   keywords.forEach(keyword => {
     formattedText = formattedText.replace(
-      new RegExp(`(${keyword})`, 'g'),
+      new RegExp(`(${keyword})(?!.*?___TITLE_END___)`, 'g'),
       '<span style="color: #1890ff; font-weight: bold">$1</span>'
     )
   })
   
   // 高亮金额数字
   formattedText = formattedText.replace(
-    /(\d+(?:\.\d+)?)\s*元/g,
+    /(\d+(?:\.\d+)?)\s*元(?!.*?___TITLE_END___)/g,
     '<span style="color: #f5222d; font-weight: bold">$1元</span>'
   )
   
   // 高亮百分比
   formattedText = formattedText.replace(
-    /(\d+(?:\.\d+)?)\s*%/g,
+    /(\d+(?:\.\d+)?)\s*%(?!.*?___TITLE_END___)/g,
     '<span style="color: #52c41a; font-weight: bold">$1%</span>'
   )
   
   // 处理序号
   formattedText = formattedText.replace(
-    /(\d+\.)\s/g,
+    /(\d+\.)\s(?!.*?___TITLE_END___)/g,
     '<span style="color: #722ed1; font-weight: bold">$1 </span>'
+  )
+  
+  // 3. 最后处理标题（替换回HTML标签）
+  formattedText = formattedText.replace(
+    /___TITLE_START___(.*?)___TITLE_END___/g,
+    '<span style="font-size: 16px; font-weight: bold; color: #000000">$1</span>'
   )
   
   // 处理段落
@@ -240,7 +253,7 @@ function ChatDemo() {
           <div className="avatar-container" style={{ 
             width: '100%',
             height: '60vh',
-            backgroundColor: '#ffffff',  // 改为白色背景
+            backgroundColor: '#ffffff',
             marginBottom: '20px',
             borderRadius: '8px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)'

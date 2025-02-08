@@ -55,7 +55,7 @@ export const CHAT_CONFIG = {
     topN: 3,
     wikiPromptTpl: `基于以下内容回答问题：
 <wikicontent>
-回答后的答案格式美化一下，避免重复引用文件名。
+回答后的答案格式美化一下，回答中不要使用文件名，避免重复引用文件名，回答结果不要有#，*等符号，不要让回答看起来像是模型回答的。
 问题：<wikiquestion>
 回答：`
   }
