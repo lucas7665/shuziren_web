@@ -59,6 +59,49 @@ interface Message {
   content: string
 }
 
+// 添加一个格式化答案的函数
+const formatAnswer = (text: string) => {
+  // 专业术语和关键词列表
+  const keywords = [
+    '贝伐珠单抗', '乙类抗癌药', '双通道', '报销基数', '三级医院',
+    '在职职工', '报销比例', '报销金额', '起付线', '医保目录',
+    '医保政策', '报销标准', '医疗机构', '医保卡', '医保账户',
+    '定点医院', '医保报销', '医保待遇', '医保范围', '医保结算'
+  ]
+  
+  // 处理文本
+  let formattedText = text
+  
+  // 高亮关键词
+  keywords.forEach(keyword => {
+    formattedText = formattedText.replace(
+      new RegExp(`(${keyword})`, 'g'),
+      '<span style="color: #1890ff; font-weight: bold">$1</span>'
+    )
+  })
+  
+  // 高亮金额数字
+  formattedText = formattedText.replace(
+    /(\d+(?:\.\d+)?)\s*元/g,
+    '<span style="color: #f5222d; font-weight: bold">$1元</span>'
+  )
+  
+  // 高亮百分比
+  formattedText = formattedText.replace(
+    /(\d+(?:\.\d+)?)\s*%/g,
+    '<span style="color: #52c41a; font-weight: bold">$1%</span>'
+  )
+  
+  // 处理序号
+  formattedText = formattedText.replace(
+    /(\d+\.)\s/g,
+    '<span style="color: #722ed1; font-weight: bold">$1 </span>'
+  )
+  
+  // 处理段落
+  return formattedText.split('\n').join('<br/>')
+}
+
 function ChatDemo() {
   const [loading, setLoading] = useState(false)
   const interativeRef = useRef<any>()
@@ -289,10 +332,20 @@ function ChatDemo() {
                         boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                         position: 'relative',
                         wordBreak: 'break-word',
-                        lineHeight: '1.5',
+                        lineHeight: '1.6',
                         textAlign: 'left'
                       }}>
-                        {msg.content}
+                        {msg.role === 'user' ? (
+                          msg.content
+                        ) : (
+                          <div 
+                            dangerouslySetInnerHTML={{ __html: formatAnswer(msg.content) }}
+                            style={{
+                              margin: '0',
+                              padding: '0'
+                            }}
+                          />
+                        )}
                       </div>
                     </div>
                   ))}
