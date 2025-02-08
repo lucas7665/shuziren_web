@@ -57,6 +57,7 @@ const CONFIG = {
 interface Message {
   role: 'user' | 'assistant'
   content: string
+  references?: string[]  // 添加参考来源字段
 }
 
 // 添加一个格式化答案的函数
@@ -235,13 +236,17 @@ function ChatDemo() {
         const newMessages: Message[] = [
           ...messages,
           { role: 'user', content: inputText },
-          { role: 'assistant', content: result.data }
+          { 
+            role: 'assistant', 
+            content: result.data.answer,
+            references: result.data.references?.files  // 添加参考来源
+          }
         ]
         setMessages(newMessages)
         
         // 让数字人说出答案
         if (interativeRef.current) {
-          await interativeRef.current.writeText(result.data, {
+          await interativeRef.current.writeText(result.data.answer, {
             tts: { vcn: 'x4_yezi' }
           })
         }
@@ -338,13 +343,26 @@ function ChatDemo() {
                         {msg.role === 'user' ? (
                           msg.content
                         ) : (
-                          <div 
-                            dangerouslySetInnerHTML={{ __html: formatAnswer(msg.content) }}
-                            style={{
-                              margin: '0',
-                              padding: '0'
-                            }}
-                          />
+                          <>
+                            <div 
+                              dangerouslySetInnerHTML={{ __html: formatAnswer(msg.content) }}
+                              style={{
+                                margin: '0',
+                                padding: '0'
+                              }}
+                            />
+                            {msg.references && msg.references.length > 0 && (
+                              <div style={{
+                                marginTop: '8px',
+                                paddingTop: '8px',
+                                borderTop: '1px solid #f0f0f0',
+                                fontSize: '12px',
+                                color: '#888'
+                              }}>
+                                参考来源：{msg.references.join(', ')}
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
