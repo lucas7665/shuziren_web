@@ -23,42 +23,23 @@ const formatAnswer = (text: string) => {
   // 处理文本
   let formattedText = text
   
-  // 1. 首先标记加粗标题的位置（使用特殊标记）
+  // 1. 首先处理数字（黑色加粗）
   formattedText = formattedText.replace(
-    /\*\*(.*?)\*\*/g,
-    '___TITLE_START___$1___TITLE_END___'
+    /(\d+(?:\.\d+)?)\s*(元|%)?/g,
+    '<span style="color: #000000; font-weight: bold">$1$2</span>'
   )
   
-  // 2. 处理其他高亮
-  // 高亮关键词（排除标题标记之间的内容）
+  // 2. 然后处理关键词（蓝色）
   keywords.forEach(keyword => {
     formattedText = formattedText.replace(
-      new RegExp(`(${keyword})(?!.*?___TITLE_END___)`, 'g'),
-      '<span style="color: #1890ff; font-weight: bold">$1</span>'
+      new RegExp(keyword, 'g'),
+      '<span style="color: #1890ff; font-weight: bold">$&</span>'
     )
   })
   
-  // 高亮金额数字
+  // 3. 最后处理标题（黑色加粗）
   formattedText = formattedText.replace(
-    /(\d+(?:\.\d+)?)\s*元(?!.*?___TITLE_END___)/g,
-    '<span style="color: #f5222d; font-weight: bold">$1元</span>'
-  )
-  
-  // 高亮百分比
-  formattedText = formattedText.replace(
-    /(\d+(?:\.\d+)?)\s*%(?!.*?___TITLE_END___)/g,
-    '<span style="color: #52c41a; font-weight: bold">$1%</span>'
-  )
-  
-  // 处理序号
-  formattedText = formattedText.replace(
-    /(\d+\.)\s(?!.*?___TITLE_END___)/g,
-    '<span style="color: #722ed1; font-weight: bold">$1 </span>'
-  )
-  
-  // 3. 最后处理标题（替换回HTML标签）
-  formattedText = formattedText.replace(
-    /___TITLE_START___(.*?)___TITLE_END___/g,
+    /\*\*(.*?)\*\*/g,
     '<span style="font-size: 16px; font-weight: bold; color: #000000">$1</span>'
   )
   
