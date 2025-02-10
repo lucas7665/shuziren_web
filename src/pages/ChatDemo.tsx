@@ -23,20 +23,32 @@ const formatAnswer = (text: string) => {
   // 处理文本
   let formattedText = text
   
-  // 1. 首先处理标题，并用特殊标记保护它们
-  formattedText = formattedText.replace(
-    /\*\*(.*?)\*\*:?/g,  // 匹配标题及可能的冒号
-    (match, title) => {
-      // 将标题中的关键词也标记为需要保护
-      const protectedTitle = title.replace(
-        new RegExp(keywords.join('|'), 'g'),
-        '<!--PROTECTED-->$&<!--/PROTECTED-->'
-      )
-      return `<!--TITLE-->${protectedTitle}<!--/TITLE-->${match.endsWith(':') ? ':' : ''}`
-    }
-  )
+  // 1. 首先处理所有类型的标题，并用特殊标记保护它们
+  formattedText = formattedText
+    // 处理 ### 格式的标题
+    .replace(
+      /###\s*(.*?)[:：]?(\s|$)/g,
+      (match, title) => {
+        const protectedTitle = title.replace(
+          new RegExp(keywords.join('|'), 'g'),
+          '<!--PROTECTED-->$&<!--/PROTECTED-->'
+        )
+        return `<!--TITLE-->${protectedTitle}<!--/TITLE-->${match.endsWith(':') ? ':' : ''}`
+      }
+    )
+    // 处理 ** 格式的标题
+    .replace(
+      /\*\*(.*?)\*\*[:：]?/g,
+      (match, title) => {
+        const protectedTitle = title.replace(
+          new RegExp(keywords.join('|'), 'g'),
+          '<!--PROTECTED-->$&<!--/PROTECTED-->'
+        )
+        return `<!--TITLE-->${protectedTitle}<!--/TITLE-->${match.endsWith(':') ? ':' : ''}`
+      }
+    )
   
-  // 2. 处理数字（黑色加粗）- 排除标题内容
+  // 2. 处理数字（黑色加粗）
   formattedText = formattedText.replace(
     /(\d+(?:\.\d+)?)\s*(元|%)?/g,
     '<span style="color: #000000; font-weight: bold">$1$2</span>'
