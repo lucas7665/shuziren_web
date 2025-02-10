@@ -11,7 +11,7 @@ export const AVATAR_CONFIG = {
     avatar_dispatch: { interactive_mode: 0, content_analysis: 0 },
     stream: {
       protocol: 'xrtc',
-      alpha: 0,
+      alpha: 1,
       bitrate: 1000000,
       fps: 25,
     },
@@ -28,7 +28,7 @@ export const AVATAR_CONFIG = {
       mirror: 0,
       background: {
         type: 'color',
-        value: '#00ff00'
+        value: '#ffffff'
       }
     },
     tts: {

@@ -135,7 +135,8 @@ function ChatDemo() {
         request_id: Date.now().toString()
       })
       
-      // 4. 设置全局参数
+      // 4. 设置全局参数 - 确保这里正确设置了背景色
+      console.log('Setting global params:', AVATAR_CONFIG.globalParams) // 添加日志
       await interativeRef.current.setGlobalParams(AVATAR_CONFIG.globalParams)
       
       // 5. 启动
@@ -143,7 +144,6 @@ function ChatDemo() {
         wrapper: document.querySelector('.avatar-container'),
         width: AVATAR_CONFIG.globalParams.avatar.width,
         height: AVATAR_CONFIG.globalParams.avatar.height,
-        // 添加缺失的必要参数
         useInlinePlayer: true,
         binaryData: false,
         protocol: AVATAR_CONFIG.globalParams.stream.protocol
@@ -152,7 +152,7 @@ function ChatDemo() {
       setInitialized(true)
       message.success('初始化完成！')
     } catch (error: any) {
-      console.error(error)
+      console.error('初始化失败:', error) // 添加详细错误日志
       message.error('初始化失败: ' + error.message)
     }
     setLoading(false)
@@ -253,7 +253,7 @@ function ChatDemo() {
           <div className="avatar-container" style={{ 
             width: '100%',
             height: '60vh',
-            backgroundColor: '#ffffff',
+            backgroundColor: '#ffffff',  // 改为白色背景
             marginBottom: '20px',
             borderRadius: '8px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
